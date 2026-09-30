@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Add an Open to Work, Hiring, Open to Collaborate or 17 other status rings to your LinkedIn profile photo. Free, and your photo never leaves your device.">
+<title>Signal Frame</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600&family=Barlow+Condensed:wght@700;800&display=swap">
+<style>
+/* Layout: a working tool. Photo stage on the left, controls on the right, stacked on phones. */
+:root{
+  --bg:#EDF0F4; --panel:#FFFFFF; --ink:#131C28; --muted:#5A6676; --line:#D5DBE3;
+  --accent:#1F4FD8; --accent-ink:#FFFFFF; --chip:#F4F6F9; --stage:#DDE3EA;
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body:"Figtree", "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0F141B; --panel:#171E28; --ink:#E7ECF2; --muted:#98A4B4; --line:#2A3441;
+  --accent:#7C9CFF; --accent-ink:#0B1020; --chip:#1D2531; --stage:#0B1017; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#0F141B; --panel:#171E28; --ink:#E7ECF2; --muted:#98A4B4; --line:#2A3441;
+  --accent:#7C9CFF; --accent-ink:#0B1020; --chip:#1D2531; --stage:#0B1017; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;padding:28px 16px 48px}
+.wrap{max-width:1120px;margin:0 auto;display:grid;gap:24px}
+header h1{font-family:var(--display);font-weight:800;font-size:clamp(28px,4vw,40px);letter-spacing:-.02em;margin:0;text-wrap:balance}
+header p{margin:6px 0 0;color:var(--muted);max-width:62ch}
+.main{display:grid;grid-template-columns:minmax(0,440px) minmax(0,1fr);gap:24px;align-items:start}
+@media (max-width:860px){.main{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;min-width:0}
+.stage{position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px);display:grid;gap:14px}
+@media (max-width:860px){.stage{position:static}}
+.canvas-box{position:relative;background:var(--stage);border-radius:10px;padding:18px;display:grid;place-items:center}
+canvas#view{width:100%;max-width:380px;aspect-ratio:1;border-radius:50%;cursor:grab;touch-action:none;box-shadow:0 6px 24px rgba(0,0,0,.18)}
+canvas#view:active{cursor:grabbing}
+.sample-tag{position:absolute;top:10px;left:10px;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;background:var(--panel);color:var(--muted);padding:3px 8px;border-radius:99px;border:1px solid var(--line)}
+.hint{font-size:13px;color:var(--muted);margin:0;text-align:center}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+label.lbl,.lbl{font-size:12px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.btn{font:600 14px var(--body);border-radius:9px;padding:11px 16px;border:1px solid var(--line);background:var(--chip);color:var(--ink);cursor:pointer}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);flex:1}
+.btn:focus-visible,.chip:focus-visible,.seg button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+input[type=range]{width:100%;accent-color:var(--accent)}
+input[type=text]{width:100%;font:500 15px var(--body);padding:10px 12px;border-radius:9px;border:1px solid var(--line);background:var(--chip);color:var(--ink)}
+.controls{display:grid;gap:22px}
+.group{display:grid;gap:10px}
+.group h2{font-family:var(--display);font-weight:600;font-size:17px;margin:0;display:flex;justify-content:space-between;align-items:baseline}
+.group h2 span{font:500 12px var(--body);color:var(--muted)}
+.chips{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:8px}
+.chip{display:flex;align-items:center;gap:10px;text-align:left;font:500 14px var(--body);padding:9px 11px;border-radius:9px;border:1px solid var(--line);background:var(--chip);color:var(--ink);cursor:pointer;min-width:0}
+.chip i{flex:none;width:18px;height:18px;border-radius:50%}
+.chip[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);font-weight:600}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--line);border-radius:9px;overflow:hidden}
+.seg button{font:600 14px var(--body);padding:10px;border:0;background:var(--chip);color:var(--ink);cursor:pointer}
+.seg.seg2{grid-template-columns:repeat(2,1fr)}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:480px){.two{grid-template-columns:1fr}}
+.check{display:flex;gap:8px;align-items:center;font-weight:500}
+.check input{width:18px;height:18px;accent-color:var(--accent)}
+.result[hidden]{display:none}
+.result{display:grid;gap:10px;border-top:1px solid var(--line);padding-top:14px}
+.result img{width:160px;border-radius:50%;justify-self:center}
+.result p{margin:0;font-size:13px;color:var(--muted)}
+.steps{margin:0;padding-left:20px;color:var(--muted);font-size:14px;display:grid;gap:4px}
+.note{font-size:13px;color:var(--muted);border-left:3px solid var(--line);padding-left:12px;margin:0}
+input[type=file]{position:absolute;width:1px;height:1px;opacity:0}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header>
+    <h1>Signal Frame</h1>
+    <p>Put a status ring on your profile photo so people know what you are open to. Pick one of 20 signals, adjust the photo, save the PNG and upload it to LinkedIn.</p>
+  </header>
+
+  <div class="main">
+    <section class="panel stage" aria-label="Preview">
+      <div class="group">
+        <span class="lbl">Frame style</span>
+        <div class="seg" role="group" aria-label="Frame style">
+          <button data-style="arc" aria-pressed="true">Arc</button>
+          <button data-style="ring" aria-pressed="false">Full ring</button>
+          <button data-style="badge" aria-pressed="false">Badge</button>
+        </div>
+        <div class="seg seg2" role="group" aria-label="Arc position" id="posSeg">
+          <button data-pos="top" aria-pressed="true">Arc on top</button>
+          <button data-pos="bottom" aria-pressed="false">Arc at bottom</button>
+        </div>
+      </div>
+      <div class="canvas-box">
+        <span class="sample-tag" id="sampleTag">Sample photo</span>
+        <canvas id="view" width="1024" height="1024" aria-label="Profile photo preview with status ring"></canvas>
+      </div>
+      <p class="hint">Drag the photo to reposition it. Everything stays in your browser.</p>
+      <div class="group">
+        <label class="lbl" for="zoom">Zoom</label>
+        <input type="range" id="zoom" min="1" max="3" step="0.01" value="1">
+      </div>
+      <div class="row">
+        <label class="btn" for="file" role="button" tabindex="0" id="uploadBtn">Upload photo</label>
+        <input type="file" id="file" accept="image/*">
+        <button class="btn primary" id="saveBtn">Save image</button>
+      </div>
+      <div class="result" id="result" hidden>
+        <img id="outImg" alt="Your framed profile photo">
+        <p>If the file did not download, press and hold the image (phone) or right click it (desktop) and choose Save image.</p>
+      </div>
+    </section>
+
+    <section class="panel controls" aria-label="Settings">
+      <div id="modeGroups"></div>
+
+      <div class="two">
+        <div class="group">
+          <label class="lbl" for="custom">Custom text (optional)</label>
+          <input type="text" id="custom" maxlength="26" placeholder="e.g. Open to Healthcare IT">
+        </div>
+        <div class="group">
+          <span class="lbl">Text options</span>
+          <label class="check"><input type="checkbox" id="hash" checked> Add # and join words</label>
+        </div>
+      </div>
+
+      <div class="group">
+        <h2>Put it on LinkedIn</h2>
+        <ol class="steps">
+          <li>Save the image from the preview panel.</li>
+          <li>Open your LinkedIn profile and click your profile photo.</li>
+          <li>Choose to change or upload a new photo, pick the saved PNG and keep the ring inside the circle.</li>
+        </ol>
+      </div>
+      <p class="note">For Open to Work and Hiring, LinkedIn also has its own built-in frames that switch on recruiter and job search visibility. A frame drawn into your photo only changes how you look, so turn those settings on as well.</p>
+    </section>
+  </div>
+</div>
+
+<script>
+const MODES = [
+  {g:"Career", id:"open-to-work", label:"Open to Work", c1:"#0E8A4A", c2:"#34C27A"},
+  {g:"Career", id:"hiring", label:"Hiring", c1:"#6A2BC4", c2:"#A56BF2"},
+  {g:"Career", id:"internship", label:"Open to Internship", c1:"#0A7C8C", c2:"#3FC1C9"},
+  {g:"Career", id:"contract", label:"Available for Contract", c1:"#8A5A00", c2:"#E0A63A"},
+  {g:"Career", id:"remote", label:"Remote Ready", c1:"#155E9E", c2:"#4FA3E6"},
+  {g:"Career", id:"relocate", label:"Open to Relocate", c1:"#3F6212", c2:"#8BC34A"},
+  {g:"Career", id:"referrals", label:"Open to Referrals", c1:"#1D4ED8", c2:"#60A5FA"},
+  {g:"Business", id:"collaborate", label:"Open to Collaborate", c1:"#C2410C", c2:"#FB923C"},
+  {g:"Business", id:"partnership", label:"Open to Partnership", c1:"#9F1239", c2:"#F43F5E"},
+  {g:"Business", id:"startup", label:"Building a Startup", c1:"#B91C1C", c2:"#F59E0B"},
+  {g:"Business", id:"cofounder", label:"Seeking Co-founder", c1:"#7C2D12", c2:"#EA580C"},
+  {g:"Business", id:"raising", label:"Raising Funds", c1:"#065F46", c2:"#10B981"},
+  {g:"Business", id:"investing", label:"Open to Invest", c1:"#854D0E", c2:"#EAB308"},
+  {g:"Business", id:"clients", label:"Accepting Clients", c1:"#0F766E", c2:"#2DD4BF"},
+  {g:"Business", id:"consulting", label:"Open to Consulting", c1:"#1E3A8A", c2:"#6366F1"},
+  {g:"Business", id:"freelance", label:"Freelance Available", c1:"#BE185D", c2:"#F472B6"},
+  {g:"Community", id:"mentor", label:"Open to Mentor", c1:"#4338CA", c2:"#818CF8"},
+  {g:"Community", id:"mentee", label:"Seeking Mentor", c1:"#6D28D9", c2:"#C084FC"},
+  {g:"Community", id:"speak", label:"Open to Speak", c1:"#A21CAF", c2:"#E879F9"},
+  {g:"Community", id:"board", label:"Open to Board Roles", c1:"#1F2937", c2:"#64748B"}
+];
+const GROUP_NOTE = {Career:"Jobs and roles", Business:"Deals and ventures", Community:"Give and grow"};
+
+const S = 1024, cx = S/2, cy = S/2, R = S/2;
+const view = document.getElementById("view"), ctx = view.getContext("2d");
+const state = {mode:MODES[0], style:"arc", pos:"top",hash:true, custom:"", img:null, sample:true, zoom:1, ox:0, oy:0};
+
+/* Sample photo so the tool opens in a working state */
+function makeSample(){
+  const c = document.createElement("canvas"); c.width = c.height = 800;
+  const x = c.getContext("2d");
+  const g = x.createLinearGradient(0,0,800,800); g.addColorStop(0,"#9FB3C8"); g.addColorStop(1,"#52667D");
+  x.fillStyle = g; x.fillRect(0,0,800,800);
+  x.fillStyle = "#E9D6C4"; x.beginPath(); x.arc(400,330,140,0,Math.PI*2); x.fill();
+  x.fillStyle = "#2B3A4C"; x.beginPath(); x.ellipse(400,820,300,260,0,Math.PI,0); x.fill();
+  x.fillStyle = "#3A2A20"; x.beginPath(); x.arc(400,300,146,Math.PI*1.05,Math.PI*1.95); x.fill();
+  return c;
+}
+
+function ringText(){
+  let t = (state.custom.trim() || state.mode.label);
+  if (state.hash) t = "#" + t.replace(/[^A-Za-z0-9]/g,"");
+  return t.toUpperCase();
+}
+
+function gradientFor(start, span, fade){
+  const m = state.mode;
+  if (!ctx.createConicGradient){ return m.c1; }
+  const gr = ctx.createConicGradient(start, cx, cy);
+  const f = span/(Math.PI*2);
+  if (fade){
+    gr.addColorStop(0, m.c1+"00"); gr.addColorStop(f*0.12, m.c1);
+    gr.addColorStop(f*0.88, m.c2); gr.addColorStop(f, m.c2+"00"); gr.addColorStop(Math.min(1,f+0.001), m.c2+"00");
+  } else {
+    gr.addColorStop(0, m.c1); gr.addColorStop(0.5, m.c2); gr.addColorStop(1, m.c1);
+  }
+  return gr;
+}
+
+function drawArcText(text, rc, t, maxAngle, top){
+  let fs = t*0.56;
+  const font = s => `800 ${s}px "Barlow Condensed", "Arial Narrow", sans-serif`;
+  let widths, total;
+  const measure = () => {
+    ctx.font = font(fs);
+    const ls = fs*0.07;
+    widths = [...text].map(ch => ctx.measureText(ch).width + ls);
+    total = widths.reduce((a,b)=>a+b,0)/rc;
+  };
+  measure();
+  while (total > maxAngle && fs > 12){ fs -= 2; measure(); }
+  ctx.fillStyle = "#FFFFFF"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  /* Bottom: read left to right with angle decreasing. Top: angle increasing. */
+  let th = top ? -Math.PI/2 - total/2 : Math.PI/2 + total/2;
+  [...text].forEach((ch,i) => {
+    const aw = widths[i]/rc, tc = top ? th + aw/2 : th - aw/2;
+    ctx.save();
+    ctx.translate(cx + rc*Math.cos(tc), cy + rc*Math.sin(tc));
+    ctx.rotate(top ? tc + Math.PI/2 : tc - Math.PI/2);
+    ctx.fillText(ch, 0, 2);
+    ctx.restore();
+    th += top ? aw : -aw;
+  });
+}
+
+function render(target = ctx){
+  const img = state.img;
+  ctx.clearRect(0,0,S,S);
+  const iw = img.width, ih = img.height;
+  const base = Math.max(S/iw, S/ih) * state.zoom;
+  const w = iw*base, h = ih*base;
+  clampOffset(w,h);
+  ctx.drawImage(img, cx - w/2 + state.ox, cy - h/2 + state.oy, w, h);
+
+  const t = S*0.115, rc = R - t/2;
+  const text = ringText();
+
+  if (state.style === "arc"){
+    const top = state.pos === "top";
+    const span = Math.PI*1.22, mid = top ? -Math.PI/2 : Math.PI/2, start = mid - span/2;
+    ctx.lineWidth = t; ctx.lineCap = "butt";
+    ctx.strokeStyle = gradientFor(start, span, true);
+    ctx.beginPath(); ctx.arc(cx,cy,rc,start,start+span); ctx.stroke();
+    drawArcText(text, rc, t, span*0.78, top);
+  } else if (state.style === "ring"){
+    ctx.lineWidth = t;
+    ctx.strokeStyle = gradientFor(-Math.PI/2, Math.PI*2, false);
+    ctx.beginPath(); ctx.arc(cx,cy,rc,0,Math.PI*2); ctx.stroke();
+    drawArcText(text, rc, t, Math.PI*1.4, state.pos === "top");
+  } else {
+    const thin = t*0.3, rr = R - thin/2;
+    ctx.lineWidth = thin;
+    ctx.strokeStyle = gradientFor(-Math.PI/2, Math.PI*2, false);
+    ctx.beginPath(); ctx.arc(cx,cy,rr,0,Math.PI*2); ctx.stroke();
+    let fs = t*0.62; const ph = t*1.05, py = cy + R*0.72;
+    ctx.font = `800 ${fs}px "Barlow Condensed", "Arial Narrow", sans-serif`;
+    let tw = ctx.measureText(text).width;
+    const maxW = R*1.15;
+    while (tw + ph > maxW && fs > 14){ fs -= 2; ctx.font = `800 ${fs}px "Barlow Condensed", "Arial Narrow", sans-serif`; tw = ctx.measureText(text).width; }
+    const pw = tw + ph*0.9, px = cx - pw/2;
+    const lg = ctx.createLinearGradient(px,0,px+pw,0); lg.addColorStop(0,state.mode.c1); lg.addColorStop(1,state.mode.c2);
+    ctx.beginPath(); ctx.roundRect(px, py - ph/2, pw, ph, ph/2);
+    ctx.fillStyle = lg; ctx.fill();
+    ctx.lineWidth = 8; ctx.strokeStyle = "#FFFFFF"; ctx.stroke();
+    ctx.fillStyle = "#FFFFFF"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.fillText(text, cx, py + 3);
+  }
+}
+
+function clampOffset(w,h){
+  const mx = Math.max(0,(w - S)/2), my = Math.max(0,(h - S)/2);
+  state.ox = Math.min(mx, Math.max(-mx, state.ox));
+  state.oy = Math.min(my, Math.max(-my, state.oy));
+}
+
+/* Mode chips grouped by what the signal is about */
+const groupsEl = document.getElementById("modeGroups");
+["Career","Business","Community"].forEach(g => {
+  const list = MODES.filter(m => m.g === g);
+  const wrap = document.createElement("div"); wrap.className = "group";
+  wrap.innerHTML = `<h2>${g}<span>${GROUP_NOTE[g]} · ${list.length}</span></h2>`;
+  const chips = document.createElement("div"); chips.className = "chips";
+  list.forEach(m => {
+    const b = document.createElement("button");
+    b.className = "chip"; b.type = "button"; b.dataset.id = m.id;
+    b.setAttribute("aria-pressed", m === state.mode);
+    b.innerHTML = `<i style="background:linear-gradient(135deg,${m.c1},${m.c2})"></i><span>${m.label}</span>`;
+    b.addEventListener("click", () => {
+      state.mode = m;
+      document.querySelectorAll(".chip").forEach(c => c.setAttribute("aria-pressed", c.dataset.id === m.id));
+      render();
+    });
+    chips.appendChild(b);
+  });
+  wrap.appendChild(chips);
+  groupsEl.appendChild(wrap);
+});
+groupsEl.style.display = "grid"; groupsEl.style.gap = "22px";
+
+document.querySelectorAll("[data-style]").forEach(b => b.addEventListener("click", () => {
+  state.style = b.dataset.style;
+  document.querySelectorAll("[data-style]").forEach(x => x.setAttribute("aria-pressed", x === b));
+  document.getElementById("posSeg").hidden = state.style === "badge";
+  render();
+}));
+document.querySelectorAll("[data-pos]").forEach(b => b.addEventListener("click", () => {
+  state.pos = b.dataset.pos;
+  document.querySelectorAll("[data-pos]").forEach(x => x.setAttribute("aria-pressed", x === b));
+  render();
+}));
+document.getElementById("custom").addEventListener("input", e => { state.custom = e.target.value; render(); });
+document.getElementById("hash").addEventListener("change", e => { state.hash = e.target.checked; render(); });
+document.getElementById("zoom").addEventListener("input", e => { state.zoom = +e.target.value; render(); });
+
+const fileEl = document.getElementById("file");
+document.getElementById("uploadBtn").addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " "){ e.preventDefault(); fileEl.click(); } });
+fileEl.addEventListener("change", e => {
+  const f = e.target.files[0]; if (!f) return;
+  const url = URL.createObjectURL(f);
+  const im = new Image();
+  im.onload = () => {
+    state.img = im; state.sample = false; state.zoom = 1; state.ox = state.oy = 0;
+    document.getElementById("zoom").value = 1;
+    document.getElementById("sampleTag").hidden = true;
+    document.getElementById("result").hidden = true;
+    render();
+  };
+  im.src = url;
+});
+
+/* Drag to reposition */
+let drag = null;
+view.addEventListener("pointerdown", e => { drag = {x:e.clientX, y:e.clientY}; view.setPointerCapture(e.pointerId); });
+view.addEventListener("pointermove", e => {
+  if (!drag) return;
+  const k = S / view.getBoundingClientRect().width;
+  state.ox += (e.clientX - drag.x)*k; state.oy += (e.clientY - drag.y)*k;
+  drag = {x:e.clientX, y:e.clientY}; render();
+});
+["pointerup","pointercancel"].forEach(t => view.addEventListener(t, () => drag = null));
+
+let downloadsApi = null;
+if (window.claude && window.claude.use) {
+  window.claude.use("downloads").then(d => { downloadsApi = d; }).catch(() => {});
+}
+document.getElementById("saveBtn").addEventListener("click", () => {
+  const url = view.toDataURL("image/png");
+  const name = `profile-${state.custom.trim() ? "custom" : state.mode.id}.png`;
+  document.getElementById("outImg").src = url;
+  document.getElementById("result").hidden = false;
+  view.toBlob(async blob => {
+    if (downloadsApi) {
+      try { await downloadsApi.save({filename: name, data: blob}); } catch(err) {}
+      return;
+    }
+    try {
+      const a = document.createElement("a");
+      a.href = url; a.download = name;
+      document.body.appendChild(a); a.click(); a.remove();
+    } catch(err) {}
+  }, "image/png");
+});
+
+state.img = makeSample();
+const ready = document.fonts ? document.fonts.load('800 60px "Barlow Condensed"') : Promise.resolve();
+render();
+ready.then(render).catch(render);
+</script>
+
+</body>
+</html>
