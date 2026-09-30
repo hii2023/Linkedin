@@ -3,144 +3,158 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1F4FD8">
 <meta name="description" content="Add an Open to Work, Hiring, Open to Collaborate or 17 other status rings to your LinkedIn profile photo. Free, and your photo never leaves your device.">
 <title>Signal Frame</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600&family=Barlow+Condensed:wght@700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600&family=Figtree:wght@400;500;600&family=Barlow+Condensed:wght@700;800&display=swap">
 <style>
-/* Layout: a working tool. Photo stage on the left, controls on the right, stacked on phones. */
+/* Layout: preview column (sticky on desktop) + controls. On phones: one column with a fixed dock showing a live mini preview and Save. */
 :root{
   --bg:#EDF0F4; --panel:#FFFFFF; --ink:#131C28; --muted:#5A6676; --line:#D5DBE3;
-  --accent:#1F4FD8; --accent-ink:#FFFFFF; --chip:#F4F6F9; --stage:#DDE3EA;
+  --accent:#1F4FD8; --accent-ink:#FFFFFF; --chip:#F4F6F9; --stage:#DDE3EA; --dock:rgba(255,255,255,.92);
   --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
   --body:"Figtree", "Segoe UI", system-ui, sans-serif;
 }
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
   --bg:#0F141B; --panel:#171E28; --ink:#E7ECF2; --muted:#98A4B4; --line:#2A3441;
-  --accent:#7C9CFF; --accent-ink:#0B1020; --chip:#1D2531; --stage:#0B1017; color-scheme:dark } }
+  --accent:#7C9CFF; --accent-ink:#0B1020; --chip:#1D2531; --stage:#0B1017; --dock:rgba(23,30,40,.92); color-scheme:dark } }
 :root[data-theme="dark"]{
   --bg:#0F141B; --panel:#171E28; --ink:#E7ECF2; --muted:#98A4B4; --line:#2A3441;
-  --accent:#7C9CFF; --accent-ink:#0B1020; --chip:#1D2531; --stage:#0B1017; color-scheme:dark }
+  --accent:#7C9CFF; --accent-ink:#0B1020; --chip:#1D2531; --stage:#0B1017; --dock:rgba(23,30,40,.92); color-scheme:dark }
 
-*{box-sizing:border-box}
-body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;padding:28px 16px 48px}
-.wrap{max-width:1120px;margin:0 auto;display:grid;gap:24px}
-header h1{font-family:var(--display);font-weight:800;font-size:clamp(28px,4vw,40px);letter-spacing:-.02em;margin:0;text-wrap:balance}
-header p{margin:6px 0 0;color:var(--muted);max-width:62ch}
-.main{display:grid;grid-template-columns:minmax(0,440px) minmax(0,1fr);gap:24px;align-items:start}
-@media (max-width:860px){.main{grid-template-columns:minmax(0,1fr)}}
-.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;min-width:0}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;padding:20px 16px 40px}
+.main{max-width:1120px;margin:0 auto;display:grid;grid-template-columns:minmax(0,420px) minmax(0,1fr);gap:20px;align-items:start}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;min-width:0}
 .stage{position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px);display:grid;gap:14px}
-@media (max-width:860px){.stage{position:static}}
-.canvas-box{position:relative;background:var(--stage);border-radius:10px;padding:18px;display:grid;place-items:center}
-canvas#view{width:100%;max-width:380px;aspect-ratio:1;border-radius:50%;cursor:grab;touch-action:none;box-shadow:0 6px 24px rgba(0,0,0,.18)}
-canvas#view:active{cursor:grabbing}
+.canvas-box{position:relative;background:var(--stage);border-radius:10px;padding:16px;display:grid;place-items:center}
+canvas#view{width:100%;max-width:360px;aspect-ratio:1;border-radius:50%;cursor:grab;touch-action:none;box-shadow:0 6px 24px rgba(0,0,0,.18);user-select:none;-webkit-user-select:none}
+canvas#view.dragging{cursor:grabbing}
 .sample-tag{position:absolute;top:10px;left:10px;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;background:var(--panel);color:var(--muted);padding:3px 8px;border-radius:99px;border:1px solid var(--line)}
 .hint{font-size:13px;color:var(--muted);margin:0;text-align:center}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-label.lbl,.lbl{font-size:12px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
-.btn{font:600 14px var(--body);border-radius:9px;padding:11px 16px;border:1px solid var(--line);background:var(--chip);color:var(--ink);cursor:pointer}
+.lbl{font-size:12px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.btn{font:600 15px var(--body);border-radius:10px;padding:12px 16px;min-height:46px;border:1px solid var(--line);background:var(--chip);color:var(--ink);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:transform .12s ease, background .15s ease}
+.btn:active{transform:scale(.97)}
 .btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);flex:1}
 .btn:focus-visible,.chip:focus-visible,.seg button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
-input[type=range]{width:100%;accent-color:var(--accent)}
-input[type=text]{width:100%;font:500 15px var(--body);padding:10px 12px;border-radius:9px;border:1px solid var(--line);background:var(--chip);color:var(--ink)}
+input[type=range]{width:100%;accent-color:var(--accent);height:28px}
+input[type=text]{width:100%;font:500 16px var(--body);padding:11px 12px;border-radius:10px;border:1px solid var(--line);background:var(--chip);color:var(--ink)}
 .controls{display:grid;gap:22px}
 .group{display:grid;gap:10px}
-.group h2{font-family:var(--display);font-weight:600;font-size:17px;margin:0;display:flex;justify-content:space-between;align-items:baseline}
+.group h2{font-family:var(--display);font-weight:600;font-size:17px;margin:0;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
 .group h2 span{font:500 12px var(--body);color:var(--muted)}
-.chips{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:8px}
-.chip{display:flex;align-items:center;gap:10px;text-align:left;font:500 14px var(--body);padding:9px 11px;border-radius:9px;border:1px solid var(--line);background:var(--chip);color:var(--ink);cursor:pointer;min-width:0}
+.chips{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px}
+.chip{display:flex;align-items:center;gap:10px;text-align:left;font:500 14px var(--body);padding:10px 11px;min-height:44px;border-radius:10px;border:1px solid var(--line);background:var(--chip);color:var(--ink);cursor:pointer;min-width:0;transition:border-color .15s ease, box-shadow .15s ease, transform .12s ease}
+.chip:active{transform:scale(.97)}
 .chip i{flex:none;width:18px;height:18px;border-radius:50%}
+.chip span{min-width:0;overflow-wrap:anywhere}
 .chip[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);font-weight:600}
-.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--line);border-radius:9px;overflow:hidden}
-.seg button{font:600 14px var(--body);padding:10px;border:0;background:var(--chip);color:var(--ink);cursor:pointer}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--line);border-radius:10px;overflow:hidden}
 .seg.seg2{grid-template-columns:repeat(2,1fr)}
+.seg button{font:600 14px var(--body);padding:10px 6px;min-height:44px;border:0;background:var(--chip);color:var(--ink);cursor:pointer;transition:background .15s ease,color .15s ease}
 .seg button+button{border-left:1px solid var(--line)}
 .seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-@media (max-width:480px){.two{grid-template-columns:1fr}}
-.check{display:flex;gap:8px;align-items:center;font-weight:500}
-.check input{width:18px;height:18px;accent-color:var(--accent)}
-.result[hidden]{display:none}
-.result{display:grid;gap:10px;border-top:1px solid var(--line);padding-top:14px}
-.result img{width:160px;border-radius:50%;justify-self:center}
-.result p{margin:0;font-size:13px;color:var(--muted)}
+.check{display:flex;gap:8px;align-items:center;font-weight:500;min-height:44px}
+.check input{width:20px;height:20px;accent-color:var(--accent)}
 .steps{margin:0;padding-left:20px;color:var(--muted);font-size:14px;display:grid;gap:4px}
 .note{font-size:13px;color:var(--muted);border-left:3px solid var(--line);padding-left:12px;margin:0}
 input[type=file]{position:absolute;width:1px;height:1px;opacity:0}
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);opacity:0;pointer-events:none;background:var(--ink);color:var(--bg);font-weight:600;font-size:14px;padding:10px 16px;border-radius:99px;transition:opacity .2s ease, transform .2s ease;z-index:30;max-width:calc(100% - 32px);text-align:center}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.dock{display:none}
+
+@media (max-width:860px){
+  body{padding:12px 12px calc(96px + env(safe-area-inset-bottom,0px))}
+  .main{grid-template-columns:minmax(0,1fr);gap:14px}
+  .stage{position:static}
+  .panel{padding:14px}
+  .canvas-box{padding:12px}
+  canvas#view{max-width:min(82vw,340px)}
+  .stage .save-desktop{display:none}
+  .two{grid-template-columns:1fr}
+  .chips{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .dock{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:20;gap:12px;align-items:center;padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px));background:var(--dock);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid var(--line)}
+  .dock canvas{width:52px;height:52px;border-radius:50%;flex:none;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+  .dock .meta{flex:1;min-width:0;display:grid;line-height:1.25}
+  .dock .meta b{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .dock .meta small{color:var(--muted);font-size:12px}
+  .dock .btn{flex:none;padding:12px 20px}
+  .toast{bottom:calc(90px + env(safe-area-inset-bottom,0px))}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
 </style>
 </head>
 <body>
 
 
-<div class="wrap">
-  <header>
-    <h1>Signal Frame</h1>
-    <p>Put a status ring on your profile photo so people know what you are open to. Pick one of 20 signals, adjust the photo, save the PNG and upload it to LinkedIn.</p>
-  </header>
+<div class="main">
+  <section class="panel stage" aria-label="Preview">
+    <div class="group">
+      <span class="lbl">Frame style</span>
+      <div class="seg" role="group" aria-label="Frame style">
+        <button type="button" data-style="arc" aria-pressed="true">Arc</button>
+        <button type="button" data-style="ring" aria-pressed="false">Full ring</button>
+        <button type="button" data-style="badge" aria-pressed="false">Badge</button>
+      </div>
+      <div class="seg seg2" role="group" aria-label="Arc position" id="posSeg">
+        <button type="button" data-pos="top" aria-pressed="true">Arc on top</button>
+        <button type="button" data-pos="bottom" aria-pressed="false">Arc at bottom</button>
+      </div>
+    </div>
+    <div class="canvas-box">
+      <span class="sample-tag" id="sampleTag">Sample photo</span>
+      <canvas id="view" width="1024" height="1024" aria-label="Profile photo preview with status ring"></canvas>
+    </div>
+    <p class="hint">Drag to move. Pinch or use the slider to zoom. Your photo never leaves your device.</p>
+    <div class="group">
+      <label class="lbl" for="zoom">Zoom</label>
+      <input type="range" id="zoom" min="1" max="4" step="0.01" value="1">
+    </div>
+    <div class="row">
+      <label class="btn" for="file" role="button" tabindex="0" id="uploadBtn">Upload photo</label>
+      <input type="file" id="file" accept="image/*">
+      <button type="button" class="btn primary save-desktop" data-save>Save HD image</button>
+    </div>
+  </section>
 
-  <div class="main">
-    <section class="panel stage" aria-label="Preview">
+  <section class="panel controls" aria-label="Settings">
+    <div id="modeGroups" class="controls"></div>
+
+    <div class="two">
       <div class="group">
-        <span class="lbl">Frame style</span>
-        <div class="seg" role="group" aria-label="Frame style">
-          <button data-style="arc" aria-pressed="true">Arc</button>
-          <button data-style="ring" aria-pressed="false">Full ring</button>
-          <button data-style="badge" aria-pressed="false">Badge</button>
-        </div>
-        <div class="seg seg2" role="group" aria-label="Arc position" id="posSeg">
-          <button data-pos="top" aria-pressed="true">Arc on top</button>
-          <button data-pos="bottom" aria-pressed="false">Arc at bottom</button>
-        </div>
+        <label class="lbl" for="custom">Custom text (optional)</label>
+        <input type="text" id="custom" maxlength="26" placeholder="e.g. Open to Healthcare IT" autocomplete="off">
       </div>
-      <div class="canvas-box">
-        <span class="sample-tag" id="sampleTag">Sample photo</span>
-        <canvas id="view" width="1024" height="1024" aria-label="Profile photo preview with status ring"></canvas>
-      </div>
-      <p class="hint">Drag the photo to reposition it. Everything stays in your browser.</p>
       <div class="group">
-        <label class="lbl" for="zoom">Zoom</label>
-        <input type="range" id="zoom" min="1" max="3" step="0.01" value="1">
+        <span class="lbl">Text options</span>
+        <label class="check"><input type="checkbox" id="hash"> Hashtag style (#OPENTOWORK)</label>
       </div>
-      <div class="row">
-        <label class="btn" for="file" role="button" tabindex="0" id="uploadBtn">Upload photo</label>
-        <input type="file" id="file" accept="image/*">
-        <button class="btn primary" id="saveBtn">Save image</button>
-      </div>
-      <div class="result" id="result" hidden>
-        <img id="outImg" alt="Your framed profile photo">
-        <p>If the file did not download, press and hold the image (phone) or right click it (desktop) and choose Save image.</p>
-      </div>
-    </section>
+    </div>
 
-    <section class="panel controls" aria-label="Settings">
-      <div id="modeGroups"></div>
-
-      <div class="two">
-        <div class="group">
-          <label class="lbl" for="custom">Custom text (optional)</label>
-          <input type="text" id="custom" maxlength="26" placeholder="e.g. Open to Healthcare IT">
-        </div>
-        <div class="group">
-          <span class="lbl">Text options</span>
-          <label class="check"><input type="checkbox" id="hash" checked> Add # and join words</label>
-        </div>
-      </div>
-
-      <div class="group">
-        <h2>Put it on LinkedIn</h2>
-        <ol class="steps">
-          <li>Save the image from the preview panel.</li>
-          <li>Open your LinkedIn profile and click your profile photo.</li>
-          <li>Choose to change or upload a new photo, pick the saved PNG and keep the ring inside the circle.</li>
-        </ol>
-      </div>
-      <p class="note">For Open to Work and Hiring, LinkedIn also has its own built-in frames that switch on recruiter and job search visibility. A frame drawn into your photo only changes how you look, so turn those settings on as well.</p>
-    </section>
-  </div>
+    <div class="group">
+      <h2>Put it on LinkedIn</h2>
+      <ol class="steps">
+        <li>Tap Save HD image. The file lands in your downloads.</li>
+        <li>Open your LinkedIn profile and tap your profile photo.</li>
+        <li>Choose to change the photo, pick the saved file and keep the ring inside the circle.</li>
+      </ol>
+      <a class="btn" href="https://www.linkedin.com/in/me/" target="_blank" rel="noopener">Open my LinkedIn profile</a>
+    </div>
+    <p class="note">For Open to Work and Hiring, LinkedIn also has built-in frames that switch on recruiter and job search visibility. A frame drawn into your photo only changes how you look, so turn those settings on as well.</p>
+  </section>
 </div>
+
+<div class="dock" aria-label="Current frame">
+  <canvas id="mini" width="104" height="104" aria-hidden="true"></canvas>
+  <div class="meta"><b id="dockLabel">Open to Work</b><small id="dockSub">Arc on top</small></div>
+  <button type="button" class="btn primary" data-save>Save HD</button>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
 const MODES = [
@@ -166,33 +180,34 @@ const MODES = [
   {g:"Community", id:"board", label:"Open to Board Roles", c1:"#1F2937", c2:"#64748B"}
 ];
 const GROUP_NOTE = {Career:"Jobs and roles", Business:"Deals and ventures", Community:"Give and grow"};
+const EXPORT_SIZE = 2048;
+const FONT = s => `800 ${s}px "Barlow Condensed", "Arial Narrow", sans-serif`;
 
-const S = 1024, cx = S/2, cy = S/2, R = S/2;
-const view = document.getElementById("view"), ctx = view.getContext("2d");
-const state = {mode:MODES[0], style:"arc", pos:"top",hash:true, custom:"", img:null, sample:true, zoom:1, ox:0, oy:0};
+const view = document.getElementById("view"), vctx = view.getContext("2d");
+const mini = document.getElementById("mini"), mctx = mini.getContext("2d");
+/* Offsets are stored as fractions of the canvas size so the HD export matches the preview exactly. */
+const state = {mode:MODES[0], style:"arc", pos:"top", hash:false, custom:"", img:null, zoom:1, ox:0, oy:0};
 
-/* Sample photo so the tool opens in a working state */
 function makeSample(){
   const c = document.createElement("canvas"); c.width = c.height = 800;
   const x = c.getContext("2d");
   const g = x.createLinearGradient(0,0,800,800); g.addColorStop(0,"#9FB3C8"); g.addColorStop(1,"#52667D");
   x.fillStyle = g; x.fillRect(0,0,800,800);
-  x.fillStyle = "#E9D6C4"; x.beginPath(); x.arc(400,330,140,0,Math.PI*2); x.fill();
-  x.fillStyle = "#2B3A4C"; x.beginPath(); x.ellipse(400,820,300,260,0,Math.PI,0); x.fill();
-  x.fillStyle = "#3A2A20"; x.beginPath(); x.arc(400,300,146,Math.PI*1.05,Math.PI*1.95); x.fill();
+  x.fillStyle = "#E9D6C4"; x.beginPath(); x.arc(400,360,140,0,Math.PI*2); x.fill();
+  x.fillStyle = "#2B3A4C"; x.beginPath(); x.ellipse(400,850,300,260,0,Math.PI,0); x.fill();
+  x.fillStyle = "#3A2A20"; x.beginPath(); x.arc(400,330,146,Math.PI*1.05,Math.PI*1.95); x.fill();
   return c;
 }
 
 function ringText(){
-  let t = (state.custom.trim() || state.mode.label);
-  if (state.hash) t = "#" + t.replace(/[^A-Za-z0-9]/g,"");
-  return t.toUpperCase();
+  const t = (state.custom.trim() || state.mode.label).replace(/\s+/g," ");
+  return (state.hash ? "#" + t.replace(/[^A-Za-z0-9]/g,"") : t).toUpperCase();
 }
 
-function gradientFor(start, span, fade){
-  const m = state.mode;
-  if (!ctx.createConicGradient){ return m.c1; }
-  const gr = ctx.createConicGradient(start, cx, cy);
+function conic(ctx, S, start, span, fade){
+  const m = state.mode, c = S/2;
+  if (!ctx.createConicGradient) return m.c1;
+  const gr = ctx.createConicGradient(start, c, c);
   const f = span/(Math.PI*2);
   if (fade){
     gr.addColorStop(0, m.c1+"00"); gr.addColorStop(f*0.12, m.c1);
@@ -203,88 +218,101 @@ function gradientFor(start, span, fade){
   return gr;
 }
 
-function drawArcText(text, rc, t, maxAngle, top){
-  let fs = t*0.56;
-  const font = s => `800 ${s}px "Barlow Condensed", "Arial Narrow", sans-serif`;
-  let widths, total;
+function arcText(ctx, S, text, rc, t, maxAngle, top){
+  const c = S/2;
+  let fs = t*0.56, widths, total;
   const measure = () => {
-    ctx.font = font(fs);
+    ctx.font = FONT(fs);
     const ls = fs*0.07;
-    widths = [...text].map(ch => ctx.measureText(ch).width + ls);
+    widths = [...text].map(ch => ctx.measureText(ch).width + (ch === " " ? ls*2 : ls));
     total = widths.reduce((a,b)=>a+b,0)/rc;
   };
   measure();
-  while (total > maxAngle && fs > 12){ fs -= 2; measure(); }
+  while (total > maxAngle && fs > t*0.2){ fs *= 0.95; measure(); }
   ctx.fillStyle = "#FFFFFF"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
-  /* Bottom: read left to right with angle decreasing. Top: angle increasing. */
   let th = top ? -Math.PI/2 - total/2 : Math.PI/2 + total/2;
   [...text].forEach((ch,i) => {
     const aw = widths[i]/rc, tc = top ? th + aw/2 : th - aw/2;
     ctx.save();
-    ctx.translate(cx + rc*Math.cos(tc), cy + rc*Math.sin(tc));
+    ctx.translate(c + rc*Math.cos(tc), c + rc*Math.sin(tc));
     ctx.rotate(top ? tc + Math.PI/2 : tc - Math.PI/2);
-    ctx.fillText(ch, 0, 2);
+    ctx.fillText(ch, 0, S*0.002);
     ctx.restore();
     th += top ? aw : -aw;
   });
 }
 
-function render(target = ctx){
+function clampOffset(){
   const img = state.img;
-  ctx.clearRect(0,0,S,S);
-  const iw = img.width, ih = img.height;
-  const base = Math.max(S/iw, S/ih) * state.zoom;
-  const w = iw*base, h = ih*base;
-  clampOffset(w,h);
-  ctx.drawImage(img, cx - w/2 + state.ox, cy - h/2 + state.oy, w, h);
-
-  const t = S*0.115, rc = R - t/2;
-  const text = ringText();
-
-  if (state.style === "arc"){
-    const top = state.pos === "top";
-    const span = Math.PI*1.22, mid = top ? -Math.PI/2 : Math.PI/2, start = mid - span/2;
-    ctx.lineWidth = t; ctx.lineCap = "butt";
-    ctx.strokeStyle = gradientFor(start, span, true);
-    ctx.beginPath(); ctx.arc(cx,cy,rc,start,start+span); ctx.stroke();
-    drawArcText(text, rc, t, span*0.78, top);
-  } else if (state.style === "ring"){
-    ctx.lineWidth = t;
-    ctx.strokeStyle = gradientFor(-Math.PI/2, Math.PI*2, false);
-    ctx.beginPath(); ctx.arc(cx,cy,rc,0,Math.PI*2); ctx.stroke();
-    drawArcText(text, rc, t, Math.PI*1.4, state.pos === "top");
-  } else {
-    const thin = t*0.3, rr = R - thin/2;
-    ctx.lineWidth = thin;
-    ctx.strokeStyle = gradientFor(-Math.PI/2, Math.PI*2, false);
-    ctx.beginPath(); ctx.arc(cx,cy,rr,0,Math.PI*2); ctx.stroke();
-    let fs = t*0.62; const ph = t*1.05, py = cy + R*0.72;
-    ctx.font = `800 ${fs}px "Barlow Condensed", "Arial Narrow", sans-serif`;
-    let tw = ctx.measureText(text).width;
-    const maxW = R*1.15;
-    while (tw + ph > maxW && fs > 14){ fs -= 2; ctx.font = `800 ${fs}px "Barlow Condensed", "Arial Narrow", sans-serif`; tw = ctx.measureText(text).width; }
-    const pw = tw + ph*0.9, px = cx - pw/2;
-    const lg = ctx.createLinearGradient(px,0,px+pw,0); lg.addColorStop(0,state.mode.c1); lg.addColorStop(1,state.mode.c2);
-    ctx.beginPath(); ctx.roundRect(px, py - ph/2, pw, ph, ph/2);
-    ctx.fillStyle = lg; ctx.fill();
-    ctx.lineWidth = 8; ctx.strokeStyle = "#FFFFFF"; ctx.stroke();
-    ctx.fillStyle = "#FFFFFF"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
-    ctx.fillText(text, cx, py + 3);
-  }
-}
-
-function clampOffset(w,h){
-  const mx = Math.max(0,(w - S)/2), my = Math.max(0,(h - S)/2);
+  const base = Math.max(1/img.width, 1/img.height) * state.zoom;
+  const mx = Math.max(0,(img.width*base - 1)/2), my = Math.max(0,(img.height*base - 1)/2);
   state.ox = Math.min(mx, Math.max(-mx, state.ox));
   state.oy = Math.min(my, Math.max(-my, state.oy));
 }
 
-/* Mode chips grouped by what the signal is about */
+function draw(ctx, S){
+  const c = S/2, R = S/2, img = state.img;
+  ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = "high";
+  ctx.clearRect(0,0,S,S);
+  clampOffset();
+  const base = Math.max(S/img.width, S/img.height) * state.zoom;
+  const w = img.width*base, h = img.height*base;
+  ctx.drawImage(img, c - w/2 + state.ox*S, c - h/2 + state.oy*S, w, h);
+
+  const t = S*0.115, rc = R - t/2, text = ringText(), top = state.pos === "top";
+  if (state.style === "arc"){
+    const span = Math.PI*1.22, mid = top ? -Math.PI/2 : Math.PI/2, start = mid - span/2;
+    ctx.lineWidth = t; ctx.lineCap = "butt";
+    ctx.strokeStyle = conic(ctx, S, start, span, true);
+    ctx.beginPath(); ctx.arc(c,c,rc,start,start+span); ctx.stroke();
+    arcText(ctx, S, text, rc, t, span*0.78, top);
+  } else if (state.style === "ring"){
+    ctx.lineWidth = t;
+    ctx.strokeStyle = conic(ctx, S, -Math.PI/2, Math.PI*2, false);
+    ctx.beginPath(); ctx.arc(c,c,rc,0,Math.PI*2); ctx.stroke();
+    arcText(ctx, S, text, rc, t, Math.PI*1.4, top);
+  } else {
+    const thin = t*0.3;
+    ctx.lineWidth = thin;
+    ctx.strokeStyle = conic(ctx, S, -Math.PI/2, Math.PI*2, false);
+    ctx.beginPath(); ctx.arc(c,c,R - thin/2,0,Math.PI*2); ctx.stroke();
+    let fs = t*0.62; const ph = t*1.05, py = c + R*0.72;
+    ctx.font = FONT(fs);
+    let tw = ctx.measureText(text).width;
+    while (tw + ph > R*1.15 && fs > t*0.2){ fs *= 0.95; ctx.font = FONT(fs); tw = ctx.measureText(text).width; }
+    const pw = tw + ph*0.9, px = c - pw/2;
+    const lg = ctx.createLinearGradient(px,0,px+pw,0); lg.addColorStop(0,state.mode.c1); lg.addColorStop(1,state.mode.c2);
+    ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(px, py - ph/2, pw, ph, ph/2); else ctx.rect(px, py - ph/2, pw, ph);
+    ctx.fillStyle = lg; ctx.fill();
+    ctx.lineWidth = S*0.008; ctx.strokeStyle = "#FFFFFF"; ctx.stroke();
+    ctx.fillStyle = "#FFFFFF"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.fillText(text, c, py + S*0.003);
+  }
+}
+
+/* Batch redraws into one per frame so dragging and pinching stay smooth. */
+let queued = false;
+function render(){
+  if (queued) return; queued = true;
+  requestAnimationFrame(() => {
+    queued = false;
+    draw(vctx, view.width);
+    mctx.clearRect(0,0,mini.width,mini.height);
+    mctx.imageSmoothingQuality = "high";
+    mctx.drawImage(view, 0, 0, mini.width, mini.height);
+    document.getElementById("dockLabel").textContent = state.custom.trim() || state.mode.label;
+    document.getElementById("dockSub").textContent =
+      state.style === "badge" ? "Badge" : (state.style === "ring" ? "Full ring" : "Arc") + (state.pos === "top" ? ", top" : ", bottom");
+  });
+}
+
+/* Mode chips */
 const groupsEl = document.getElementById("modeGroups");
 ["Career","Business","Community"].forEach(g => {
   const list = MODES.filter(m => m.g === g);
   const wrap = document.createElement("div"); wrap.className = "group";
-  wrap.innerHTML = `<h2>${g}<span>${GROUP_NOTE[g]} · ${list.length}</span></h2>`;
+  wrap.innerHTML = `<h2>${g}<span>${GROUP_NOTE[g]}, ${list.length}</span></h2>`;
   const chips = document.createElement("div"); chips.className = "chips";
   list.forEach(m => {
     const b = document.createElement("button");
@@ -301,7 +329,6 @@ const groupsEl = document.getElementById("modeGroups");
   wrap.appendChild(chips);
   groupsEl.appendChild(wrap);
 });
-groupsEl.style.display = "grid"; groupsEl.style.gap = "22px";
 
 document.querySelectorAll("[data-style]").forEach(b => b.addEventListener("click", () => {
   state.style = b.dataset.style;
@@ -316,61 +343,81 @@ document.querySelectorAll("[data-pos]").forEach(b => b.addEventListener("click",
 }));
 document.getElementById("custom").addEventListener("input", e => { state.custom = e.target.value; render(); });
 document.getElementById("hash").addEventListener("change", e => { state.hash = e.target.checked; render(); });
-document.getElementById("zoom").addEventListener("input", e => { state.zoom = +e.target.value; render(); });
+const zoomEl = document.getElementById("zoom");
+zoomEl.addEventListener("input", e => { state.zoom = +e.target.value; render(); });
 
+/* Upload */
 const fileEl = document.getElementById("file");
 document.getElementById("uploadBtn").addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " "){ e.preventDefault(); fileEl.click(); } });
 fileEl.addEventListener("change", e => {
   const f = e.target.files[0]; if (!f) return;
-  const url = URL.createObjectURL(f);
   const im = new Image();
   im.onload = () => {
-    state.img = im; state.sample = false; state.zoom = 1; state.ox = state.oy = 0;
-    document.getElementById("zoom").value = 1;
+    state.img = im; state.zoom = 1; state.ox = state.oy = 0; zoomEl.value = 1;
     document.getElementById("sampleTag").hidden = true;
-    document.getElementById("result").hidden = true;
     render();
+    if (window.matchMedia("(max-width:860px)").matches) view.scrollIntoView({behavior:"smooth", block:"center"});
   };
-  im.src = url;
+  im.onerror = () => toast("That file could not be opened. Try a JPG or PNG.");
+  im.src = URL.createObjectURL(f);
 });
 
-/* Drag to reposition */
-let drag = null;
-view.addEventListener("pointerdown", e => { drag = {x:e.clientX, y:e.clientY}; view.setPointerCapture(e.pointerId); });
+/* Drag with one finger or mouse, pinch with two fingers, wheel to zoom */
+const pts = new Map(); let pinch = null;
+const setZoom = z => { state.zoom = Math.min(4, Math.max(1, z)); zoomEl.value = state.zoom; };
+view.addEventListener("pointerdown", e => {
+  view.setPointerCapture(e.pointerId); pts.set(e.pointerId, {x:e.clientX, y:e.clientY});
+  view.classList.add("dragging");
+  if (pts.size === 2){ const [a,b] = [...pts.values()]; pinch = {d:Math.hypot(a.x-b.x,a.y-b.y), z:state.zoom}; }
+});
 view.addEventListener("pointermove", e => {
-  if (!drag) return;
-  const k = S / view.getBoundingClientRect().width;
-  state.ox += (e.clientX - drag.x)*k; state.oy += (e.clientY - drag.y)*k;
-  drag = {x:e.clientX, y:e.clientY}; render();
+  const p = pts.get(e.pointerId); if (!p) return;
+  const size = view.getBoundingClientRect().width;
+  if (pts.size === 1){
+    state.ox += (e.clientX - p.x)/size; state.oy += (e.clientY - p.y)/size;
+  }
+  pts.set(e.pointerId, {x:e.clientX, y:e.clientY});
+  if (pts.size === 2 && pinch){ const [a,b] = [...pts.values()]; setZoom(pinch.z * Math.hypot(a.x-b.x,a.y-b.y)/pinch.d); }
+  render();
 });
-["pointerup","pointercancel"].forEach(t => view.addEventListener(t, () => drag = null));
+const endPtr = e => { pts.delete(e.pointerId); if (pts.size < 2) pinch = null; if (!pts.size) view.classList.remove("dragging"); };
+["pointerup","pointercancel","pointerleave"].forEach(t => view.addEventListener(t, endPtr));
+view.addEventListener("wheel", e => { e.preventDefault(); setZoom(state.zoom * (e.deltaY < 0 ? 1.06 : 0.94)); render(); }, {passive:false});
 
-let downloadsApi = null;
-if (window.claude && window.claude.use) {
-  window.claude.use("downloads").then(d => { downloadsApi = d; }).catch(() => {});
+/* Toast */
+let toastTimer;
+function toast(msg){
+  const el = document.getElementById("toast");
+  el.textContent = msg; el.classList.add("show");
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => el.classList.remove("show"), 2600);
 }
-document.getElementById("saveBtn").addEventListener("click", () => {
-  const url = view.toDataURL("image/png");
-  const name = `profile-${state.custom.trim() ? "custom" : state.mode.id}.png`;
-  document.getElementById("outImg").src = url;
-  document.getElementById("result").hidden = false;
-  view.toBlob(async blob => {
-    if (downloadsApi) {
-      try { await downloadsApi.save({filename: name, data: blob}); } catch(err) {}
-      return;
-    }
-    try {
-      const a = document.createElement("a");
-      a.href = url; a.download = name;
-      document.body.appendChild(a); a.click(); a.remove();
-    } catch(err) {}
-  }, "image/png");
-});
+
+/* Save: render a fresh 2048px image and download it straight away */
+let downloadsApi = null;
+if (window.claude && window.claude.use) window.claude.use("downloads").then(d => { downloadsApi = d; }).catch(() => {});
+async function save(){
+  const out = document.createElement("canvas"); out.width = out.height = EXPORT_SIZE;
+  draw(out.getContext("2d"), EXPORT_SIZE);
+  const slug = (state.custom.trim() || state.mode.label).toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+  const name = `linkedin-${slug || "frame"}.jpg`;
+  const blob = await new Promise(r => out.toBlob(r, "image/jpeg", 0.95));
+  if (!blob){ toast("Could not create the image. Please try again."); return; }
+  if (downloadsApi){
+    try { await downloadsApi.save({filename:name, data:blob}); toast("Saved " + name); } catch(err) {}
+    return;
+  }
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = name; a.rel = "noopener";
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 4000);
+  toast("Downloaded " + name);
+}
+document.querySelectorAll("[data-save]").forEach(b => b.addEventListener("click", save));
 
 state.img = makeSample();
-const ready = document.fonts ? document.fonts.load('800 60px "Barlow Condensed"') : Promise.resolve();
 render();
-ready.then(render).catch(render);
+if (document.fonts) document.fonts.load(FONT(60)).then(render).catch(render);
 </script>
 
 </body>

@@ -7,8 +7,8 @@ Add a status ring to your LinkedIn profile photo so people know what you are ope
 - 20 signals in three groups: Career, Business, Community
 - Three frame styles: Arc (top or bottom), Full ring, Badge
 - Custom text, optional hashtag format
-- Drag and zoom to position the photo
-- Exports a 1024 x 1024 PNG ready for LinkedIn
+- Drag, pinch or scroll to position the photo; mobile dock with live preview
+- Exports a 2048 x 2048 high quality JPG that downloads on Save
 
 ## Privacy
 
