@@ -71,10 +71,14 @@ input[type=file]{position:absolute;width:1px;height:1px;opacity:0}
 @media (max-width:860px){
   body{padding:12px 12px calc(96px + env(safe-area-inset-bottom,0px))}
   .main{grid-template-columns:minmax(0,1fr);gap:14px}
-  .stage{position:static}
+  /* Phones: the preview panel dissolves into the page so the photo can stay pinned
+     while the style controls above it scroll away and the tags scroll underneath. */
+  .stage{display:contents}
   .panel{padding:14px}
-  .canvas-box{padding:12px}
-  canvas#view{max-width:min(82vw,340px)}
+  .canvas-box{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;margin-inline:-12px;padding:10px 12px;border-radius:0;background:var(--bg);border-bottom:1px solid var(--line);box-shadow:0 8px 16px -12px rgba(0,0,0,.35)}
+  canvas#view{max-width:min(58vw,250px)}
+  .sample-tag{top:8px;left:12px}
+  .dock canvas{display:none}
   .stage .save-desktop{display:none}
   .two{grid-template-columns:1fr}
   .chips{grid-template-columns:repeat(2,minmax(0,1fr))}
