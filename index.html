@@ -25,6 +25,9 @@
   --accent:#7C9CFF; --accent-ink:#0B1020; --chip:#1D2531; --stage:#0B1017; --dock:rgba(23,30,40,.92); color-scheme:dark }
 
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
+img{max-width:100%}
+body{margin:0}
 html{scroll-behavior:smooth}
 body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;padding:20px 16px 40px}
 .main{max-width:1120px;margin:0 auto;display:grid;grid-template-columns:minmax(0,420px) minmax(0,1fr);gap:20px;align-items:start}
@@ -67,6 +70,18 @@ input[type=file]{position:absolute;width:1px;height:1px;opacity:0}
 .toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);opacity:0;pointer-events:none;background:var(--ink);color:var(--bg);font-weight:600;font-size:14px;padding:10px 16px;border-radius:99px;transition:opacity .2s ease, transform .2s ease;z-index:30;max-width:calc(100% - 32px);text-align:center}
 .toast.show{opacity:1;transform:translate(-50%,0)}
 .dock{display:none}
+.muted{margin:0;color:var(--muted);font-size:14px}
+.privacy{max-width:1120px;margin:18px auto 0;font-size:12px;color:var(--muted);text-align:center}
+.sheet-bg{position:fixed;inset:0;z-index:40;background:rgba(10,14,20,.45);display:grid;place-items:center;padding:16px;animation:fade .18s ease}
+.sheet{width:100%;max-width:420px;background:var(--panel);color:var(--ink);border-radius:16px;padding:20px;display:grid;gap:10px;box-shadow:0 20px 60px rgba(0,0,0,.3);animation:rise .22s ease}
+.sheet h2{font-family:var(--display);font-weight:600;font-size:20px;margin:0}
+.sheet input[type=email]{width:100%;font:500 16px var(--body);padding:11px 12px;border-radius:10px;border:1px solid var(--line);background:var(--chip);color:var(--ink)}
+.check.small{font-size:13px;font-weight:500;color:var(--muted);align-items:flex-start;min-height:0}
+.check.small input{margin-top:2px;flex:none}
+.err{margin:0;color:#C2261D;font-size:13px;min-height:1em}
+.sheet .row .btn{flex:1}
+@keyframes fade{from{opacity:0}}
+@keyframes rise{from{transform:translateY(16px);opacity:0}}
 
 @media (max-width:860px){
   body{padding:12px 12px calc(96px + env(safe-area-inset-bottom,0px))}
@@ -89,6 +104,8 @@ input[type=file]{position:absolute;width:1px;height:1px;opacity:0}
   .dock .meta small{color:var(--muted);font-size:12px}
   .dock .btn{flex:none;padding:12px 20px}
   .toast{bottom:calc(90px + env(safe-area-inset-bottom,0px))}
+  .sheet-bg{place-items:end center;padding:0}
+  .sheet{max-width:none;border-radius:18px 18px 0 0;padding-bottom:calc(20px + env(safe-area-inset-bottom,0px))}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
 </style>
@@ -111,21 +128,14 @@ input[type=file]{position:absolute;width:1px;height:1px;opacity:0}
         <button type="button" data-pos="top" aria-pressed="false">Top</button>
       </div>
     </div>
-    <div class="canvas-box">
+    <div class="canvas-box" data-clarity-mask="true">
       <span class="sample-tag" id="sampleTag">Sample photo</span>
       <canvas id="view" width="1024" height="1024" aria-label="Profile photo preview with status ring"></canvas>
     </div>
-    <p class="hint">Drag to move. Pinch or use the slider to zoom. Your photo never leaves your device.</p>
+    <p class="hint">Drag to move. Pinch or use the slider to zoom.</p>
     <div class="group">
       <label class="lbl" for="zoom">Zoom</label>
       <input type="range" id="zoom" min="1" max="4" step="0.01" value="1">
-    </div>
-    <div class="group">
-      <span class="lbl">Download size</span>
-      <div class="seg seg2" role="group" aria-label="Download size">
-        <button type="button" data-size="400" aria-pressed="false">LinkedIn 400 x 400</button>
-        <button type="button" data-size="1080" aria-pressed="true">HD 1080 x 1080</button>
-      </div>
     </div>
     <div class="row">
       <label class="btn" for="file" role="button" tabindex="0" id="uploadBtn">Upload photo</label>
@@ -157,6 +167,11 @@ input[type=file]{position:absolute;width:1px;height:1px;opacity:0}
       </ol>
       <a class="btn" href="https://www.linkedin.com/in/me/" target="_blank" rel="noopener">Open my LinkedIn profile</a>
     </div>
+    <div class="group match">
+      <h2>Get matched</h2>
+      <p class="muted">Leave your email and we will connect you with people who need what you offer, or offer what you need.</p>
+      <button type="button" class="btn" id="openSub">Get matched</button>
+    </div>
     <p class="note">For Open to Work and Hiring, LinkedIn also has built-in frames that switch on recruiter and job search visibility. A frame drawn into your photo only changes how you look, so turn those settings on as well.</p>
   </section>
 </div>
@@ -166,6 +181,23 @@ input[type=file]{position:absolute;width:1px;height:1px;opacity:0}
   <div class="meta"><b id="dockLabel">Open to Work</b><small id="dockSub">Arc, LinkedIn side</small></div>
   <button type="button" class="btn primary" data-save>Save</button>
 </div>
+<div class="sheet-bg" id="subBg" hidden>
+  <form class="sheet" id="subForm" novalidate aria-labelledby="subTitle">
+    <h2 id="subTitle">Get matched</h2>
+    <p class="muted" id="subLead">You picked <b id="subTag">Open to Work</b>. Get matched with people in your city who need what you offer, or offer what you need.</p>
+    <label class="lbl" for="subEmail">Email</label>
+    <input type="email" id="subEmail" autocomplete="email" inputmode="email" placeholder="you@example.com" required>
+    <label class="lbl" for="subNeed" id="subNeedLbl">What role or field? (optional)</label>
+    <input type="text" id="subNeed" maxlength="200" autocomplete="off">
+    <label class="check small"><input type="checkbox" id="subConsent"> <span id="subConsentText"></span></label>
+    <p class="err" id="subErr" role="alert"></p>
+    <div class="row">
+      <button type="button" class="btn" id="subSkip">No thanks</button>
+      <button type="submit" class="btn primary" id="subGo">Get matched</button>
+    </div>
+  </form>
+</div>
+<p class="privacy">We count which tag you pick and your approximate city, never your photo. Your photo stays on your device.</p>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
@@ -201,7 +233,19 @@ const MODES = [
   {g:"Career Break", id:"sabbatical", label:"On Sabbatical", c1:"#57534E", c2:"#A8A29E"}
 ];
 const GROUP_NOTE = {Career:"Jobs and roles", "Career Break":"Between chapters", Business:"Deals and ventures", "Business Needs":"Buying, not selling", Community:"Give and grow"};
-let exportSize = 1080;
+const TRACK_URL = "https://xoiksbtxoxrifkgvupqp.supabase.co/functions/v1/sf-track";
+const CLARITY_ID = ""; /* paste your Microsoft Clarity project id here to turn on heatmaps */
+const CONSENT_TEXT = "Send me matches and updates from Signal Frame. I can unsubscribe any time.";
+const NEED_Q = {
+  "Career":"What role or field?", "Career Break":"What are you looking for next?",
+  "Business":"What do you offer or need?", "Business Needs":"What service do you need?", "Community":"Which area or cause?"
+};
+/* Best quality: follow the photo's real resolution, never below 1080, never above 2048 (well under LinkedIn's 8 MB). */
+function bestSize(){
+  const img = state.img;
+  const shown = Math.min(img.width, img.height) / state.zoom;
+  return Math.round(Math.min(2048, Math.max(1080, shown)));
+}
 const FONT = s => `800 ${s}px "Barlow Condensed", "Arial Narrow", sans-serif`;
 
 const view = document.getElementById("view"), vctx = view.getContext("2d");
@@ -377,10 +421,6 @@ document.querySelectorAll("[data-pos]").forEach(b => b.addEventListener("click",
   document.querySelectorAll("[data-pos]").forEach(x => x.setAttribute("aria-pressed", x === b));
   render();
 }));
-document.querySelectorAll("[data-size]").forEach(b => b.addEventListener("click", () => {
-  exportSize = +b.dataset.size;
-  document.querySelectorAll("[data-size]").forEach(x => x.setAttribute("aria-pressed", x === b));
-}));
 document.getElementById("custom").addEventListener("input", e => { state.custom = e.target.value; render(); });
 document.getElementById("hash").addEventListener("change", e => { state.hash = e.target.checked; render(); });
 const zoomEl = document.getElementById("zoom");
@@ -436,14 +476,16 @@ function toast(msg){
 let downloadsApi = null;
 if (window.claude && window.claude.use) window.claude.use("downloads").then(d => { downloadsApi = d; }).catch(() => {});
 async function save(){
-  const out = document.createElement("canvas"); out.width = out.height = exportSize;
-  draw(out.getContext("2d"), exportSize);
+  const size = bestSize();
+  const out = document.createElement("canvas"); out.width = out.height = size;
+  draw(out.getContext("2d"), size);
   const slug = (state.custom.trim() || state.mode.label).toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
-  const name = `linkedin-${slug || "frame"}-${exportSize}x${exportSize}.jpg`;
+  const name = `linkedin-${slug || "frame"}.jpg`;
   const blob = await new Promise(r => out.toBlob(r, "image/jpeg", 0.95));
+  track("save");
   if (!blob){ toast("Could not create the image. Please try again."); return; }
   if (downloadsApi){
-    try { await downloadsApi.save({filename:name, data:blob}); toast("Saved " + name); } catch(err) {}
+    try { await downloadsApi.save({filename:name, data:blob}); toast("Saved " + name); setTimeout(() => openSub(false), 900); } catch(err) {}
     return;
   }
   const url = URL.createObjectURL(blob);
@@ -452,8 +494,63 @@ async function save(){
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 4000);
   toast("Downloaded " + name);
+  setTimeout(() => openSub(false), 900);
 }
 document.querySelectorAll("[data-save]").forEach(b => b.addEventListener("click", save));
+
+/* Tracking: tag, style and source only. City is worked out on the server; the photo is never sent. */
+const qs = new URLSearchParams(location.search);
+const utm = {utm_source:qs.get("utm_source"), utm_medium:qs.get("utm_medium"), utm_campaign:qs.get("utm_campaign")};
+function tagInfo(){
+  const custom = state.custom.trim();
+  return {tag_id: custom ? "custom" : state.mode.id, tag_label: custom || state.mode.label, tag_group: custom ? "Custom" : state.mode.g};
+}
+function track(event, extra = {}){
+  const body = {event, ...tagInfo(), custom_text: state.custom.trim() || null, style: state.style, position: state.pos,
+    device: /Mobi|Android|iPhone/i.test(navigator.userAgent) ? "mobile" : "desktop",
+    referrer: document.referrer ? new URL(document.referrer).hostname : null, ...utm, ...extra};
+  return fetch(TRACK_URL, {method:"POST", headers:{"content-type":"application/json"}, body:JSON.stringify(body), keepalive:true});
+}
+
+/* Subscribe sheet */
+const subBg = document.getElementById("subBg"), subErr = document.getElementById("subErr");
+document.getElementById("subConsentText").textContent = CONSENT_TEXT;
+let subscribed = false;
+function openSub(force){
+  if (subscribed && !force) return;
+  const t = tagInfo();
+  document.getElementById("subTag").textContent = t.tag_label;
+  document.getElementById("subNeedLbl").textContent = (NEED_Q[state.mode.g] || "What are you looking for?") + " (optional)";
+  subErr.textContent = "";
+  subBg.hidden = false;
+  setTimeout(() => document.getElementById("subEmail").focus({preventScroll:true}), 50);
+}
+const closeSub = () => { subBg.hidden = true; };
+document.getElementById("openSub").addEventListener("click", () => openSub(true));
+document.getElementById("subSkip").addEventListener("click", closeSub);
+subBg.addEventListener("click", e => { if (e.target === subBg) closeSub(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !subBg.hidden) closeSub(); });
+document.getElementById("subForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const email = document.getElementById("subEmail").value.trim();
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ subErr.textContent = "Enter a valid email address, like name@example.com."; return; }
+  if (!document.getElementById("subConsent").checked){ subErr.textContent = "Tick the box so we are allowed to email you."; return; }
+  const go = document.getElementById("subGo"); go.disabled = true; go.textContent = "Saving...";
+  try {
+    const r = await track("subscribe", {email, need: document.getElementById("subNeed").value.trim() || null, consent:true, consent_text: CONSENT_TEXT});
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(j.error || "Could not subscribe");
+    subscribed = true; closeSub(); toast("You're on the list. We'll email you when there's a match.");
+  } catch(err){
+    subErr.textContent = (err && err.message && err.message !== "Failed to fetch") ? err.message : "Could not connect. Check your internet and try again.";
+  } finally { go.disabled = false; go.textContent = "Get matched"; }
+});
+
+if (CLARITY_ID){
+  (function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+  t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+  y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);})(window,document,"clarity","script",CLARITY_ID);
+}
 
 state.img = makeSample();
 render();
