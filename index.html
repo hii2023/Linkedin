@@ -105,9 +105,10 @@ input[type=file]{position:absolute;width:1px;height:1px;opacity:0}
         <button type="button" data-style="ring" aria-pressed="false">Full ring</button>
         <button type="button" data-style="badge" aria-pressed="false">Badge</button>
       </div>
-      <div class="seg seg2" role="group" aria-label="Arc position" id="posSeg">
-        <button type="button" data-pos="top" aria-pressed="true">Arc on top</button>
-        <button type="button" data-pos="bottom" aria-pressed="false">Arc at bottom</button>
+      <div class="seg" role="group" aria-label="Arc position" id="posSeg">
+        <button type="button" data-pos="side" aria-pressed="true">LinkedIn side</button>
+        <button type="button" data-pos="bottom" aria-pressed="false">Bottom</button>
+        <button type="button" data-pos="top" aria-pressed="false">Top</button>
       </div>
     </div>
     <div class="canvas-box">
@@ -162,7 +163,7 @@ input[type=file]{position:absolute;width:1px;height:1px;opacity:0}
 
 <div class="dock" aria-label="Current frame">
   <canvas id="mini" width="104" height="104" aria-hidden="true"></canvas>
-  <div class="meta"><b id="dockLabel">Open to Work</b><small id="dockSub">Arc on top</small></div>
+  <div class="meta"><b id="dockLabel">Open to Work</b><small id="dockSub">Arc, LinkedIn side</small></div>
   <button type="button" class="btn primary" data-save>Save</button>
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -202,7 +203,7 @@ const FONT = s => `800 ${s}px "Barlow Condensed", "Arial Narrow", sans-serif`;
 const view = document.getElementById("view"), vctx = view.getContext("2d");
 const mini = document.getElementById("mini"), mctx = mini.getContext("2d");
 /* Offsets are stored as fractions of the canvas size so the HD export matches the preview exactly. */
-const state = {mode:MODES[0], style:"arc", pos:"top", hash:false, custom:"", img:null, zoom:1, ox:0, oy:0};
+const state = {mode:MODES[0], style:"arc", pos:"side", hash:false, custom:"", img:null, zoom:1, ox:0, oy:0};
 
 function makeSample(){
   const c = document.createElement("canvas"); c.width = c.height = 800;
@@ -234,7 +235,7 @@ function conic(ctx, S, start, span, fade){
   return gr;
 }
 
-function arcText(ctx, S, text, rc, t, maxAngle, top){
+function arcText(ctx, S, text, rc, t, maxAngle, top, mid = Math.PI/2){
   const c = S/2;
   let fs = t*0.56, widths, total;
   const measure = () => {
@@ -246,7 +247,7 @@ function arcText(ctx, S, text, rc, t, maxAngle, top){
   measure();
   while (total > maxAngle && fs > t*0.2){ fs *= 0.95; measure(); }
   ctx.fillStyle = "#FFFFFF"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
-  let th = top ? -Math.PI/2 - total/2 : Math.PI/2 + total/2;
+  let th = top ? -Math.PI/2 - total/2 : mid + total/2;
   [...text].forEach((ch,i) => {
     const aw = widths[i]/rc, tc = top ? th + aw/2 : th - aw/2;
     ctx.save();
@@ -276,7 +277,22 @@ function draw(ctx, S){
   ctx.drawImage(img, c - w/2 + state.ox*S, c - h/2 + state.oy*S, w, h);
 
   const t = S*0.115, rc = R - t/2, text = ringText(), top = state.pos === "top";
-  if (state.style === "arc"){
+  const deg = d => d*Math.PI/180;
+  if (state.style === "arc" && state.pos === "side"){
+    /* LinkedIn's own frame: band hugs the lower left, text near 7 o'clock, fading out toward the bottom right. */
+    const start = deg(52), span = deg(138), m = state.mode;
+    let stroke = m.c1;
+    if (ctx.createConicGradient){
+      const f = span/(Math.PI*2);
+      stroke = ctx.createConicGradient(start, c, c);
+      stroke.addColorStop(0, m.c2+"00"); stroke.addColorStop(f*0.38, m.c2);
+      stroke.addColorStop(f*0.66, m.c1); stroke.addColorStop(f*0.97, m.c1);
+      stroke.addColorStop(f, m.c1+"00"); stroke.addColorStop(Math.min(1,f+0.001), m.c1+"00");
+    }
+    ctx.lineWidth = t; ctx.lineCap = "butt"; ctx.strokeStyle = stroke;
+    ctx.beginPath(); ctx.arc(c,c,rc,start,start+span); ctx.stroke();
+    arcText(ctx, S, text, rc, t, deg(74), false, deg(140));
+  } else if (state.style === "arc"){
     const span = Math.PI*1.22, mid = top ? -Math.PI/2 : Math.PI/2, start = mid - span/2;
     ctx.lineWidth = t; ctx.lineCap = "butt";
     ctx.strokeStyle = conic(ctx, S, start, span, true);
@@ -286,7 +302,7 @@ function draw(ctx, S){
     ctx.lineWidth = t;
     ctx.strokeStyle = conic(ctx, S, -Math.PI/2, Math.PI*2, false);
     ctx.beginPath(); ctx.arc(c,c,rc,0,Math.PI*2); ctx.stroke();
-    arcText(ctx, S, text, rc, t, Math.PI*1.4, top);
+    arcText(ctx, S, text, rc, t, Math.PI*1.4, top, state.pos === "side" ? deg(135) : Math.PI/2);
   } else {
     const thin = t*0.3;
     ctx.lineWidth = thin;
@@ -319,7 +335,7 @@ function render(){
     mctx.drawImage(view, 0, 0, mini.width, mini.height);
     document.getElementById("dockLabel").textContent = state.custom.trim() || state.mode.label;
     document.getElementById("dockSub").textContent =
-      state.style === "badge" ? "Badge" : (state.style === "ring" ? "Full ring" : "Arc") + (state.pos === "top" ? ", top" : ", bottom");
+      state.style === "badge" ? "Badge" : (state.style === "ring" ? "Full ring" : "Arc") + ({side:", LinkedIn side", top:", top", bottom:", bottom"})[state.pos];
   });
 }
 
