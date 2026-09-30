@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#1F4FD8">
-<meta name="description" content="Add an Open to Work, Hiring, Open to Collaborate or 17 other status rings to your LinkedIn profile photo. Free, and your photo never leaves your device.">
+<meta name="description" content="Add an Open to Work, Hiring, Laid Off, Open to Collaborate or 21 other status rings to your LinkedIn profile photo. Free, and your photo never leaves your device.">
 <title>Signal Frame</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -115,10 +115,17 @@ input[type=file]{position:absolute;width:1px;height:1px;opacity:0}
       <label class="lbl" for="zoom">Zoom</label>
       <input type="range" id="zoom" min="1" max="4" step="0.01" value="1">
     </div>
+    <div class="group">
+      <span class="lbl">Download size</span>
+      <div class="seg seg2" role="group" aria-label="Download size">
+        <button type="button" data-size="400" aria-pressed="true">LinkedIn 400 x 400</button>
+        <button type="button" data-size="1080" aria-pressed="false">HD 1080 x 1080</button>
+      </div>
+    </div>
     <div class="row">
       <label class="btn" for="file" role="button" tabindex="0" id="uploadBtn">Upload photo</label>
       <input type="file" id="file" accept="image/*">
-      <button type="button" class="btn primary save-desktop" data-save>Save HD image</button>
+      <button type="button" class="btn primary save-desktop" data-save>Save image</button>
     </div>
   </section>
 
@@ -139,7 +146,7 @@ input[type=file]{position:absolute;width:1px;height:1px;opacity:0}
     <div class="group">
       <h2>Put it on LinkedIn</h2>
       <ol class="steps">
-        <li>Tap Save HD image. The file lands in your downloads.</li>
+        <li>Tap Save image. The file lands in your downloads.</li>
         <li>Open your LinkedIn profile and tap your profile photo.</li>
         <li>Choose to change the photo, pick the saved file and keep the ring inside the circle.</li>
       </ol>
@@ -152,7 +159,7 @@ input[type=file]{position:absolute;width:1px;height:1px;opacity:0}
 <div class="dock" aria-label="Current frame">
   <canvas id="mini" width="104" height="104" aria-hidden="true"></canvas>
   <div class="meta"><b id="dockLabel">Open to Work</b><small id="dockSub">Arc on top</small></div>
-  <button type="button" class="btn primary" data-save>Save HD</button>
+  <button type="button" class="btn primary" data-save>Save</button>
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
@@ -177,10 +184,15 @@ const MODES = [
   {g:"Community", id:"mentor", label:"Open to Mentor", c1:"#4338CA", c2:"#818CF8"},
   {g:"Community", id:"mentee", label:"Seeking Mentor", c1:"#6D28D9", c2:"#C084FC"},
   {g:"Community", id:"speak", label:"Open to Speak", c1:"#A21CAF", c2:"#E879F9"},
-  {g:"Community", id:"board", label:"Open to Board Roles", c1:"#1F2937", c2:"#64748B"}
+  {g:"Community", id:"board", label:"Open to Board Roles", c1:"#1F2937", c2:"#64748B"},
+  {g:"Community", id:"volunteer", label:"Open to Volunteer", c1:"#15803D", c2:"#86EFAC"},
+  {g:"Community", id:"help", label:"Open to Help", c1:"#DB2777", c2:"#FDA4AF"},
+  {g:"Career Break", id:"laid-off", label:"Laid Off", c1:"#0369A1", c2:"#38BDF8"},
+  {g:"Career Break", id:"fired", label:"Fired", c1:"#991B1B", c2:"#EF4444"},
+  {g:"Career Break", id:"sabbatical", label:"On Sabbatical", c1:"#57534E", c2:"#A8A29E"}
 ];
-const GROUP_NOTE = {Career:"Jobs and roles", Business:"Deals and ventures", Community:"Give and grow"};
-const EXPORT_SIZE = 2048;
+const GROUP_NOTE = {Career:"Jobs and roles", "Career Break":"Between chapters", Business:"Deals and ventures", Community:"Give and grow"};
+let exportSize = 400;
 const FONT = s => `800 ${s}px "Barlow Condensed", "Arial Narrow", sans-serif`;
 
 const view = document.getElementById("view"), vctx = view.getContext("2d");
@@ -309,7 +321,7 @@ function render(){
 
 /* Mode chips */
 const groupsEl = document.getElementById("modeGroups");
-["Career","Business","Community"].forEach(g => {
+["Career","Career Break","Business","Community"].forEach(g => {
   const list = MODES.filter(m => m.g === g);
   const wrap = document.createElement("div"); wrap.className = "group";
   wrap.innerHTML = `<h2>${g}<span>${GROUP_NOTE[g]}, ${list.length}</span></h2>`;
@@ -340,6 +352,10 @@ document.querySelectorAll("[data-pos]").forEach(b => b.addEventListener("click",
   state.pos = b.dataset.pos;
   document.querySelectorAll("[data-pos]").forEach(x => x.setAttribute("aria-pressed", x === b));
   render();
+}));
+document.querySelectorAll("[data-size]").forEach(b => b.addEventListener("click", () => {
+  exportSize = +b.dataset.size;
+  document.querySelectorAll("[data-size]").forEach(x => x.setAttribute("aria-pressed", x === b));
 }));
 document.getElementById("custom").addEventListener("input", e => { state.custom = e.target.value; render(); });
 document.getElementById("hash").addEventListener("change", e => { state.hash = e.target.checked; render(); });
@@ -396,10 +412,10 @@ function toast(msg){
 let downloadsApi = null;
 if (window.claude && window.claude.use) window.claude.use("downloads").then(d => { downloadsApi = d; }).catch(() => {});
 async function save(){
-  const out = document.createElement("canvas"); out.width = out.height = EXPORT_SIZE;
-  draw(out.getContext("2d"), EXPORT_SIZE);
+  const out = document.createElement("canvas"); out.width = out.height = exportSize;
+  draw(out.getContext("2d"), exportSize);
   const slug = (state.custom.trim() || state.mode.label).toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
-  const name = `linkedin-${slug || "frame"}.jpg`;
+  const name = `linkedin-${slug || "frame"}-${exportSize}x${exportSize}.jpg`;
   const blob = await new Promise(r => out.toBlob(r, "image/jpeg", 0.95));
   if (!blob){ toast("Could not create the image. Please try again."); return; }
   if (downloadsApi){
