@@ -123,8 +123,8 @@ input[type=file]{position:absolute;width:1px;height:1px;opacity:0}
     <div class="group">
       <span class="lbl">Download size</span>
       <div class="seg seg2" role="group" aria-label="Download size">
-        <button type="button" data-size="400" aria-pressed="true">LinkedIn 400 x 400</button>
-        <button type="button" data-size="1080" aria-pressed="false">HD 1080 x 1080</button>
+        <button type="button" data-size="400" aria-pressed="false">LinkedIn 400 x 400</button>
+        <button type="button" data-size="1080" aria-pressed="true">HD 1080 x 1080</button>
       </div>
     </div>
     <div class="row">
@@ -197,7 +197,7 @@ const MODES = [
   {g:"Career Break", id:"sabbatical", label:"On Sabbatical", c1:"#57534E", c2:"#A8A29E"}
 ];
 const GROUP_NOTE = {Career:"Jobs and roles", "Career Break":"Between chapters", Business:"Deals and ventures", Community:"Give and grow"};
-let exportSize = 400;
+let exportSize = 1080;
 const FONT = s => `800 ${s}px "Barlow Condensed", "Arial Narrow", sans-serif`;
 
 const view = document.getElementById("view"), vctx = view.getContext("2d");

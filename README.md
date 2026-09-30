@@ -8,7 +8,7 @@ Add a status ring to your LinkedIn profile photo so people know what you are ope
 - Three frame styles: Arc (LinkedIn side by default, bottom or top), Full ring, Badge
 - Custom text, optional hashtag format
 - Drag, pinch or scroll to position the photo; mobile dock with live preview
-- Exports LinkedIn size 400 x 400 (default) or HD 1080 x 1080 JPG, well under the 8 MB limit, downloaded on Save
+- Exports HD 1080 x 1080 (default) or LinkedIn size 400 x 400 JPG, well under the 8 MB limit, downloaded on Save
 
 ## Privacy
 
