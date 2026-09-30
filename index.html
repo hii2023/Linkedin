@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#1F4FD8">
-<meta name="description" content="Add an Open to Work, Hiring, Laid Off, Open to Collaborate or 21 other status rings to your LinkedIn profile photo. Free, and your photo never leaves your device.">
+<meta name="description" content="Add Open to Work, Hiring, Looking for Services, Open to Collaborate or 25 other status rings to your LinkedIn profile photo. Free, and your photo never leaves your device.">
 <title>Signal Frame</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -186,6 +186,10 @@ const MODES = [
   {g:"Business", id:"clients", label:"Accepting Clients", c1:"#0F766E", c2:"#2DD4BF"},
   {g:"Business", id:"consulting", label:"Open to Consulting", c1:"#1E3A8A", c2:"#6366F1"},
   {g:"Business", id:"freelance", label:"Freelance Available", c1:"#BE185D", c2:"#F472B6"},
+  {g:"Business Needs", id:"need-services", label:"Looking for Services", c1:"#0B5563", c2:"#22D3EE"},
+  {g:"Business Needs", id:"need-vendors", label:"Seeking Vendors", c1:"#3730A3", c2:"#A5B4FC"},
+  {g:"Business Needs", id:"need-agency", label:"Hiring an Agency", c1:"#831843", c2:"#FB7185"},
+  {g:"Business Needs", id:"need-freelancers", label:"Need Freelancers", c1:"#365314", c2:"#BEF264"},
   {g:"Community", id:"mentor", label:"Open to Mentor", c1:"#4338CA", c2:"#818CF8"},
   {g:"Community", id:"mentee", label:"Seeking Mentor", c1:"#6D28D9", c2:"#C084FC"},
   {g:"Community", id:"speak", label:"Open to Speak", c1:"#A21CAF", c2:"#E879F9"},
@@ -196,7 +200,7 @@ const MODES = [
   {g:"Career Break", id:"fired", label:"Fired", c1:"#991B1B", c2:"#EF4444"},
   {g:"Career Break", id:"sabbatical", label:"On Sabbatical", c1:"#57534E", c2:"#A8A29E"}
 ];
-const GROUP_NOTE = {Career:"Jobs and roles", "Career Break":"Between chapters", Business:"Deals and ventures", Community:"Give and grow"};
+const GROUP_NOTE = {Career:"Jobs and roles", "Career Break":"Between chapters", Business:"Deals and ventures", "Business Needs":"Buying, not selling", Community:"Give and grow"};
 let exportSize = 1080;
 const FONT = s => `800 ${s}px "Barlow Condensed", "Arial Narrow", sans-serif`;
 
@@ -341,7 +345,7 @@ function render(){
 
 /* Mode chips */
 const groupsEl = document.getElementById("modeGroups");
-["Career","Career Break","Business","Community"].forEach(g => {
+["Career","Career Break","Business","Business Needs","Community"].forEach(g => {
   const list = MODES.filter(m => m.g === g);
   const wrap = document.createElement("div"); wrap.className = "group";
   wrap.innerHTML = `<h2>${g}<span>${GROUP_NOTE[g]}, ${list.length}</span></h2>`;

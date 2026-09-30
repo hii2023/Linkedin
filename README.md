@@ -4,7 +4,7 @@ Add a status ring to your LinkedIn profile photo so people know what you are ope
 
 ## Features
 
-- 25 signals in four groups: Career, Career Break, Business, Community
+- 29 signals in five groups: Career, Career Break, Business, Business Needs, Community
 - Three frame styles: Arc (LinkedIn side by default, bottom or top), Full ring, Badge
 - Custom text, optional hashtag format
 - Drag, pinch or scroll to position the photo; mobile dock with live preview
